@@ -1,6 +1,5 @@
 package com.example.SendSmsToMobileNumber.Controllers;
 
-
 import com.example.SendSmsToMobileNumber.Service.TwilioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ import java.util.Map;
 public class SmsController {
 
     @Autowired
-    private TwilioService smsService;
+    private TwilioService twilioService;
 
     @PostMapping("/send")
     public ResponseEntity<?> sendSms(@RequestBody Map<String, String> request) {
@@ -24,7 +23,7 @@ public class SmsController {
             return ResponseEntity.badRequest().body("Phone and message are required.");
         }
 
-        String response = smsService.sendSms(phone, message);
+        String response = twilioService.sendSms(phone, message);
         return ResponseEntity.ok(Map.of("messageSid", response));
     }
 }
