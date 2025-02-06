@@ -1,18 +1,25 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:21-jdk-slim
+# Use an official OpenJDK runtime as a builder
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 
-# Set environment variables for security (these will be provided in Render)
-ENV TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
-ENV TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-ENV TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
-
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the built JAR file into the container
-COPY target/SendSmsToMobileNumber-0.0.1-SNAPSHOT.jar app.jar
+# Copy the project files to the container
+COPY . .
 
-# Expose the application's port
+# Build the application using Maven
+RUN mvn clean package -DskipTests
+
+# Use a lightweight OpenJDK image for running the application
+FROM openjdk:21-jdk-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built JAR file from the builder stage
+COPY --from=builder /app/target/SendSmsToMobileNumber-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose the application port
 EXPOSE 8080
 
 # Run the application
